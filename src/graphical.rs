@@ -23,7 +23,7 @@ pub(super) fn init_framebuffer(framebuffer: Option<FrameBuffer>) {
 
     framebuffer.buffer_mut().fill(0);
 
-    draw_test_colors(&mut framebuffer);
+    // draw_test_colors(&mut framebuffer);
 
     unsafe {
         FRAMEBUFFER = Some(framebuffer);
