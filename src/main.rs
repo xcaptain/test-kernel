@@ -1,5 +1,6 @@
 #![no_std]
 #![no_main]
+#![feature(abi_x86_interrupt)]
 
 use core::panic::PanicInfo;
 
@@ -9,10 +10,12 @@ use bootloader_api::{
     info::{MemoryRegionKind, Optional},
     BootInfo, BootloaderConfig,
 };
-use logger::{log, Color};
+use logger::{log, Color, log1};
 
 mod graphical;
 mod logger;
+mod gdt;
+mod interrupts;
 
 const CONFIG: BootloaderConfig = {
     let mut config = BootloaderConfig::new_default();
@@ -29,6 +32,14 @@ fn main(boot_info: &'static mut BootInfo) -> ! {
     let framebuffer = framebuffer.into_option();
 
     logger::init(framebuffer);
+    gdt::init();
+    interrupts::init_idt();
+    unsafe {
+        interrupts::PICS.lock().initialize();
+    }
+    x86_64::instructions::interrupts::enable();
+
+    // x86_64::instructions::interrupts::int3();
 
     let prelease_str = if boot_info.api_version.pre_release() {
         "(prerelease)"
@@ -100,6 +111,8 @@ fn main(boot_info: &'static mut BootInfo) -> ! {
     }
 
     log("Done!", Color::White);
+
+    log1("fuck done!");
 
     loop {}
 }

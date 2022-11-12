@@ -28,6 +28,15 @@ pub fn log(display: impl Display, color: Color) {
     }
 }
 
+pub fn log1(display: impl Display) {
+    let color = Color::White;
+    graphical::write(&display, color);
+
+    unsafe {
+        write!(SERIAL_PORT, "{}{display}\r\n", color.escape_sequence()).unwrap();
+    }
+}
+
 impl Color {
     fn escape_sequence(&self) -> &'static str {
         match self {
